@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'robot',
+    'learning_model',
 ]
 
 MIDDLEWARE = [
