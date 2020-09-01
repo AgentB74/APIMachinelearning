@@ -5,4 +5,4 @@ from .models import Robot
 class RobotSerializer(ModelSerializer):
     class Meta:
         model = Robot
-        fields = ('robot_data', 'create_date')
+        fields = ('id', 'robot_data', 'create_date')
