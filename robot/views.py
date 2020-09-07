@@ -5,6 +5,8 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 
 import pandas as pd
+
+from .robot_handler import RobotHandler
 from .serializers import RobotSerializer
 from .models import Robot
 
@@ -29,24 +31,24 @@ class FileUploadView(APIView):
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RobotDetail(APIView):
+class RobotDetail(APIView, RobotHandler):
     """
     Retrieve, update or delete a snippet instance.
     """
 
-    def get_object(self, pk):
-        try:
-            return Robot.objects.get(pk=pk)
-        except Robot.DoesNotExist:
-            raise Http404
+    # def get_object(self, pk):
+    #     try:
+    #         return Robot.objects.get(pk=pk)
+    #     except Robot.DoesNotExist:
+    #         raise Http404
 
     def get(self, request, pk, format=None):
-        robot = self.get_object(pk)
+        robot = self.get_robot(pk)
         serializer = RobotSerializer(robot)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
-        robot = self.get_object(pk)
+        robot = self.get_robot(pk)
         serializer = RobotSerializer(robot, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -54,6 +56,6 @@ class RobotDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        robot = self.get_object(pk)
+        robot = self.get_robot(pk)
         robot.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
