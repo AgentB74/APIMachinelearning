@@ -1,11 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import LearningModel, TrainedModel
-
-
-class LearningModelSerializer(ModelSerializer):
-    class Meta:
-        model = LearningModel
-        fields = ('name', 'type', 'model_parameters',)
+from .models import TrainedModel
 
 
 class TrainedModelSerializer(ModelSerializer):

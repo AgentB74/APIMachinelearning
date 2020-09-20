@@ -18,11 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 # from django.views.generic import RedirectView
 from robot import urls as robot_url
-from learning_model import urls as learning_model_url
+# from learning_model import urls as learning_model_url
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('robot/', include(robot_url)),
-    path('model/', include(learning_model_url)),
+    # path('model/', include(learning_model_url)),
     # url(r'^favicon\.ico$', RedirectView.as_view(url='/static/img/favicon.ico'), name='favicon'),
 ]

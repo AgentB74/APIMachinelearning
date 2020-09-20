@@ -1,4 +1,4 @@
-from django.http import QueryDict, Http404
+from django.http import QueryDict
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
@@ -6,16 +6,16 @@ from rest_framework.response import Response
 
 import pandas as pd
 
+from learning_model.learning import do_learn
 from .robot_handler import RobotHandler
 from .serializers import RobotSerializer
-from .models import Robot
 
 
-class FileUploadView(APIView):
+class RobotLearnView(APIView, RobotHandler):
     parser_class = (FileUploadParser,)
 
     def post(self, request, *args, **kwargs):
-        file = request.data['file']
+        file = request.FILES['file']
         df = pd.read_csv(file)
         df_json = df.to_json()
 
@@ -24,23 +24,17 @@ class FileUploadView(APIView):
         file_serializer = RobotSerializer(data=file_data)
 
         if file_serializer.is_valid():
-            new_robot = file_serializer.save()
-            # Вызов метода обуч.
-            return Response(new_robot.id, status=status.HTTP_201_CREATED)
-        else:
-            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # file_serializer.save()
+            # print(df.loc[df['_NumMotor_'] == '_1_'])
+            do_learn(robot_data=df.loc[df['_NumMotor_'] == '_1_'])
+            return Response('Success', status=status.HTTP_201_CREATED)
+        return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RobotDetail(APIView, RobotHandler):
     """
     Retrieve, update or delete a snippet instance.
     """
-
-    # def get_object(self, pk):
-    #     try:
-    #         return Robot.objects.get(pk=pk)
-    #     except Robot.DoesNotExist:
-    #         raise Http404
 
     def get(self, request, pk, format=None):
         robot = self.get_robot(pk)
