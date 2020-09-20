@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+import copy
+
 
 class WindowGenerator:
     def __init__(self, input_width, label_width, shift,
@@ -92,17 +94,27 @@ class WindowGenerator:
     #     plt.xlabel('Time [h]')
     #     plt.show()
 
-    def plot(self, model=None, plot_col=None, max_subplots=3):
+    def plot(self, model=None, plot_col=None, max_subplots=3, name=None, train_std=None, train_mean=None):
         inputs, labels = self.example
-        print(self.example)
         plt.figure(figsize=(12, 8))
+        # Задание названия графику
+        plt.title("График") if name is None else plt.title(name)
         plot_col_index = self.column_indices[plot_col]
         max_n = min(max_subplots, len(inputs))
         for n in range(max_n):
             plt.subplot(3, 1, n + 1)
             plt.ylabel(f'{plot_col} [normed]')
-            plt.plot(self.input_indices, inputs[n, :, plot_col_index],
-                     label='Inputs', marker='.', zorder=-10)
+            # print(inputs)
+
+            test_list_in = copy.deepcopy(inputs.numpy())
+
+            for index, i in enumerate(test_list_in):
+                for index2, j in enumerate(i):
+                    for index3, h in enumerate(j):
+                        test_list_in[index][index2][index3] = (h * train_std[2]) + train_mean[2]
+
+            plt.plot(self.input_indices, test_list_in[n, :, plot_col_index],
+                     label='Inputs', marker='.', zorder=-10, linewidth=1.5)
 
             if self.label_columns:
                 label_col_index = self.label_columns_indices.get(plot_col, None)
@@ -112,12 +124,17 @@ class WindowGenerator:
             if label_col_index is None:
                 continue
 
-            plt.plot(self.label_indices, labels[n, :, label_col_index], c='#2ca02c')
+            # plt.plot(self.label_indices, labels[n, :, label_col_index], c='#2ca02c', linewidth=2.5)
             if model is not None:
                 predictions = model(inputs)
-                print(predictions)
-                plt.plot(self.label_indices, predictions[n, :, label_col_index],
-                         marker='X', c='#ff7f0e')
+                test_list = copy.deepcopy(predictions.numpy())
+                for index, i in enumerate(test_list):
+                    for index2, j in enumerate(i):
+                        for index3, h in enumerate(j):
+                            test_list[index][index2][index3] = (h * train_std[2]) + train_mean[2]
+
+                plt.plot(self.label_indices, test_list[n, :, label_col_index],
+                         marker='', c='#ff7f0e', linewidth=1)
 
             if n == 0:
                 plt.legend()
